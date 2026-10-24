@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Три промта · Рома</title>
+<meta name="description" content="Три интервью с нейросетью, примерно по полчаса каждое. После них она знает твою историю, твою суть и то, как ты говоришь.">
+<meta property="og:title" content="Три промта: нейросеть пишет и думает как ты">
+<meta property="og:description" content="Три интервью с нейросетью, примерно по полчаса каждое. Копируешь, вставляешь, отвечаешь.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#FF7A1A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg: #F2F3F4;
+  --card: #FFFFFF;
+  --fg: #1B1E21;
+  --muted: #5B6168;
+  --line: #DFE2E5;
+  --accent: #FF7A1A;
+  --accent-ink: #B4500B;
+  --on-accent: #1B1E21;
+  --soft: #FFF1E6;
+  --display: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  --body: "Montserrat", "Segoe UI", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181B; --card: #1F2327; --fg: #ECEEF0; --muted: #A0A7AE; --line: #30353A;
+    --accent: #FF7A1A; --accent-ink: #FF9A4F; --on-accent: #1B1E21; --soft: #2A2119;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 16px; line-height: 1.6;
+  padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+.wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+.handle { font-weight: 600; font-size: 14px; color: var(--muted); text-decoration: none; letter-spacing: 0.02em; }
+h1 { margin: 6px 0 0; font-family: var(--display); text-transform: uppercase; line-height: 1; display: flex; flex-direction: column; gap: 8px; }
+h1 .sm { font-family: var(--body); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; line-height: 1.35; color: var(--fg); max-width: 26ch; }
+h1 .big { font-weight: 700; font-size: clamp(64px, 20vw, 112px); color: var(--accent); }
+.lead { margin: 0; color: var(--muted); }
+
+h2 { margin: 0; font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: 22px; letter-spacing: 0.03em; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; }
+.steps li::before {
+  counter-increment: s; content: counter(s);
+  width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
+  font: 700 15px/30px var(--body); text-align: center;
+}
+.howto { display: flex; flex-direction: column; gap: 14px; }
+
+.card { background: var(--card); border-radius: 18px; padding: 22px 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--line); }
+.card-head { display: flex; align-items: baseline; gap: 14px; }
+.num { font-family: var(--display); font-weight: 700; font-size: 44px; line-height: 1; color: var(--accent); }
+.card h3 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 26px; text-transform: uppercase; letter-spacing: 0.02em; }
+.card p { margin: 0; color: var(--muted); }
+
+.copy {
+  appearance: none; border: 0; cursor: pointer; width: 100%;
+  background: var(--accent); color: var(--on-accent); border-radius: 12px; padding: 15px 18px;
+  font-family: var(--display); font-weight: 700; font-size: 19px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.copy:active { transform: translateY(1px); }
+.copy.done { background: var(--fg); color: var(--card); }
+.copy:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.msg { font-size: 14px; color: var(--accent-ink); min-height: 0; }
+.msg:empty { display: none; }
+
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-weight: 600; font-size: 15px; color: var(--accent-ink); list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: " ↓"; }
+details[open] summary::after { content: " ↑"; }
+.ptext {
+  margin: 12px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--body); font-size: 14px; line-height: 1.55;
+  background: var(--bg); border-radius: 10px; padding: 14px; max-height: 60vh; overflow: auto;
+}
+
+.note { background: var(--soft); border-radius: 14px; padding: 16px 18px; margin: 0; }
+footer { color: var(--muted); font-size: 14px; text-align: center; padding-top: 8px; }
+footer a { color: var(--accent-ink); font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <a class="handle" href="https://www.instagram.com/roma_restart/">@roma_restart</a>
+    <h1><span class="sm">Три промта, после которых нейросеть пишет и думает</span> <span class="big">как ты</span></h1>
+  </header>
+  <p class="lead">Три интервью с нейросетью, примерно по полчаса каждое. После них она знает твою историю, твою суть и то, как ты говоришь.</p>
+
+  <section class="howto">
+    <h2>Как пройти</h2>
+    <ol class="steps">
+      <li><span>В ChatGPT или Claude найди в меню «Проекты» и создай новый.</span></li>
+      <li><span>Внутри открой новый чат, скопируй первый промт кнопкой ниже и вставь. Вместо текста в квадратных скобках напиши пару слов о себе.</span></li>
+      <li><span>Отвечай как есть, можно голосом. Когда нейросеть соберёт документ, вставь второй промт, потом третий.</span></li>
+      <li><span>Попроси нейросеть выдать каждый документ файлом и добавь эти файлы в проект. Теперь любой новый чат в нём уже знает, кто ты.</span></li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">01</span><h3>Распаковка</h3></div>
+    <p>Нейросеть расспрашивает о твоём пути, работе, ошибках и сильных сторонах. На выходе получается подробный документ о тебе.</p>
+    <button class="copy" type="button" data-target="p1">Скопировать промт</button>
+    <div class="msg" aria-live="polite"></div>
+    <details><summary>Показать текст</summary><pre class="ptext" id="p1">ПРОМТ 1. РАСПАКОВКА: СОБИРАЕМ МАТЕРИАЛ
+
+Ты — интервьюер, который помогает людям достать из себя опыт, истории и характер для личного блога. Я твой собеседник. Пара слов обо мне: [1–2 предложения: чем ты занимаешься и о чём хочешь вести блог. Если продавать пока нечего, напиши, кто ты и чем живёшь].
+
+Сейчас твоя работа — собрать материал, а не делать выводы. Мне нужны факты, случаи из жизни, детали, цифры и чувства. Стратегию, позиционирование и советы оставь на потом.
+
+Как вести разговор:
+— Спрашивай по одному вопросу и жди ответа, как журналист на живом интервью.
+— На каждый ответ задай 1–2 уточняющих вопроса и только потом переходи дальше.
+— Общие слова («я ответственный», «было тяжело») не принимай, проси случай: где и когда это было, кто что сказал, сколько стоило, чем закончилось.
+— Не подсказывай ответ в самом вопросе, не хвали и не пересказывай мои слова после каждого ответа.
+— Раз в 10 вопросов коротко покажи, какие темы уже собраны, а какие остались.
+— Я могу отвечать голосовым вводом, сбивчиво и с ошибками. Не поправляй, просто ищи смысл.
+— Если я напишу «пауза», дай короткую сводку собранного, чтобы продолжить в новом чате.
+
+Темы, по которым нужен материал:
+— чем я занимаюсь и что у меня получается лучше, чем у других: за что меня ценят и зовут (на примерах)
+— мой путь: с чего всё началось, повороты, кризисы, провалы, решения, которые всё поменяли
+— истории из жизни и работы, по которым виден мой характер
+— во что я верю, мои принципы и откуда они взялись: люди, события
+— для кого я работаю: живые люди, их проблемы и ситуации, в которых они застряли
+— какую задачу я решаю для этих людей
+— увлечения, привычки, странности, черты характера
+— чего я боюсь, в чём сомневаюсь, что выводит меня из себя
+— где я вижу себя через год и через три
+
+Когда материала хватит по всем темам, спроси, можно ли заканчивать. Если да, уточни, есть ли что-то, что нельзя публиковать. Потом собери документ «Распаковка»:
+— разделы по темам выше, в каждом все мои факты, истории и детали;
+— имена, даты, цифры и мои формулировки сохраняй как есть, ничего не обобщай и не додумывай;
+— отдельный раздел «Мои фразы дословно»: выражения, по которым слышно, как я говорю;
+— пометка «не публиковать» у всего, что не для чужих глаз;
+— в конце раздел «Чего не хватает»: темы, где материала мало.
+
+Документ — сырьё для следующих шагов (ДНК блога, голос, сценарии), поэтому подробность важнее краткости.
+
+Задай первый вопрос.</pre></details>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">02</span><h3>ДНК</h3></div>
+    <p>Из распаковки нейросеть вытаскивает главное: в чём твоя суть, для кого ты работаешь и чем отличаешься от других. Пригодится для блога, своего дела и любого проекта.</p>
+    <button class="copy" type="button" data-target="p2">Скопировать промт</button>
+    <div class="msg" aria-live="polite"></div>
+    <details><summary>Показать текст</summary><pre class="ptext" id="p2">ПРОМТ 2. ДНК БЛОГА
+
+Ты — стратег, который выстраивает личные бренды в соцсетях. Выше в чате или во вложении лежит моя распаковка. Прочитай её, чтобы понимать, кто я. Выводы делай не из неё, а из нового разговора про блог: распаковка — фон, по которому ты задаёшь точные вопросы. Пересказывать её мне не нужно.
+
+Если распаковки нет, сначала задай 5–7 коротких вопросов обо мне: чем занимаюсь, какой у меня путь, для кого хочу вести блог. Потом переходи к интервью.
+
+Как вести разговор:
+— Один вопрос за раз, жди ответа, как в живой беседе.
+— После каждого ответа — 1–2 уточнения.
+— Спрашивай точечно, от того, что уже знаешь обо мне. Например, вместо «чем ты отличаешься?» спроси: «в распаковке есть история про X, это и есть твоё отличие?»
+— Если мне трудно сформулировать, предложи 2–3 варианта: я выберу и поправлю.
+
+О чём спросить:
+— Зачем мне блог на самом деле: что я хочу построить, кроме цифры подписчиков.
+— О чём блог, в одной фразе. Сразу не выходит — помогай вопросами и вариантами.
+— Чем мой блог отличается от похожих: что зритель получает у меня и не получает у других. Попроси назвать 2–3 автора, на которых я хочу равняться, и 1–2, чей стиль мне точно чужой.
+— Кто мой зритель: что это за люди и с каким чувством они должны уходить после моего видео.
+— Главная мысль, которую я несу: что должно остаться в голове у зрителя.
+— Каким меня должны запомнить, какое впечатление я оставляю.
+— Каким меня воспринимать не должны, с кем и с чем меня нельзя путать.
+— Чего я жду от блога через год: для себя и для зрителей.
+
+Когда ответов хватит по всем темам, спроси, можно ли заканчивать. Перед итоговым файлом покажи черновик главных формулировок (фраза эксперта, архетип, one-liner, главная мысль), по 2–3 варианта каждой. Я выберу. Потом собери файл «ДНК блога»:
+
+1. Портрет эксперта
+— кто я как эксперт, одной сильной фразой
+— архетип: конкретный образ, а не «успешный гуру»
+— 5–7 отличий, из-за которых меня не с кем сравнить в нише. Каждое — факт из моих ответов. «Десять лет в профессии» подходит, «опытный» — нет.
+
+2. Концепция блога
+— one-liner: о чём блог, одной фразой
+— 3 пункта «этот блог не про…»
+— главная мысль для зрителей
+
+3. Аудитория
+— кто эти люди
+— их главная боль, одной фразой
+— 3–5 причин, почему слушают именно меня
+— что зритель должен почувствовать и унести с собой
+
+4. Образ
+— какое впечатление я произвожу
+— каким меня должны запомнить
+— с чем меня нельзя путать
+
+5. Цель на год — что я строю для себя и для зрителей.
+
+6. Темы-опоры — 3–5 направлений, из которых будет состоять блог, и по одной идее ролика на каждое.
+
+Пиши коротко: каждый пункт — вывод, а не история. Выводы бери из моих ответов в этом интервью.
+
+Задай первый вопрос.</pre></details>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">03</span><h3>Голос</h3></div>
+    <p>Нейросеть разбирает, как ты говоришь, и собирает правила, по которым потом пишет твоим голосом.</p>
+    <button class="copy" type="button" data-target="p3">Скопировать промт</button>
+    <div class="msg" aria-live="polite"></div>
+    <details><summary>Показать текст</summary><pre class="ptext" id="p3">ПРОМТ 3. ГОЛОС АВТОРА (ТОН ОФ ВОЙС)
+
+Ты — лингвист и редактор, который умеет разобрать, как звучит конкретный человек. Я дам тебе свои настоящие тексты, ты вытащишь из них мой голос и соберёшь файл «ТОВ».
+
+Главное правило: описывай только то, что есть в моих текстах. Не придумывай, как мне лучше звучать, и не рисуй идеальный голос. К каждому наблюдению — цитата из моих текстов. Процитировать нечего — пункт не пиши.
+
+Сначала попроси материал и дождись его. Что подойдёт:
+— лучше всего живая речь: расшифровки голосовых, сторис и видео, где я говорю без бумажки;
+— переписка с друзьями и посты, написанные без помощи нейросети;
+— не подходят тексты, которые писала или правила нейросеть: голос в них уже не мой.
+
+Нужно 3–5 текстов, в сумме хотя бы 1000 слов. Если готовых текстов нет, дай мне 3–5 тем, на которые я наговорю по 2–3 минуты голосовым вводом, и работай с этим. Если для какого-то раздела материала мало, скажи и попроси ещё.
+
+Структура файла «ТОВ»:
+
+1. Архетип голоса — три слова о том, как я звучу. С какой позиции говорю: как друг, наставник, репортёр или кто-то ещё.
+
+2. Лексика
+— слова и обороты, которые часто повторяются
+— слова-якоря: фирменные выражения, по которым меня узнают
+— слова и конструкции, которых у меня нет
+
+3. Синтаксис и ритм
+— длина фраз: ровная или рваная, как чередуются длинные и короткие
+— как я перечисляю
+— любимые конструкции: противопоставления, вопросы себе или зрителю, повторы
+
+4. Приёмы — как начинаю, как захожу в тему, как заканчиваю, какими словами связываю части.
+
+5. Интонация — где разгоняюсь, где притормаживаю, где ставлю ударение.
+
+6. Эмоции — как говорю о слабостях и сомнениях, как — о силе. Что говорю прямо, а что обхожу.
+
+7. Стоп-список — что прозвучало бы фальшиво, совсем не как я. Отдельно проверь мои тексты на типовые штампы нейросетей: «не X, а Y», «Первое… Второе… Третье…», красивый афоризм в конце, тире вместо глагола («Денег — ноль»), рубленые фразы по 3–4 слова подряд. Всё, чего у меня нет, внеси в стоп-список.
+
+8. Как писать моим голосом — 5–7 коротких правил для нейросети, которая будет писать от моего имени: как начинать, какой длины фразы, сколько моих словечек на текст, чего не делать никогда. Правила выводи из разделов 1–7.
+
+9. Проверка «Звучит как я?» — 8–10 вопросов с ответом «да» или «нет», у каждого ссылка на раздел.
+
+В разделах 1–7 у каждого пункта — пример из моих текстов. Без примера пункт не пиши.
+
+Когда файл готов, проверим его в деле. Попроси у меня тему и напиши по файлу текст на 100–150 слов. Я отмечу, где звучит не как я, а ты поправь не только текст, но и сам файл, чтобы ошибка не повторилась. Повторяем, пока я не скажу «да, это я».
+
+Цель — чтобы любой текст от моего имени можно было проверить по этому файлу одним вопросом: «Это звучит как я?»</pre></details>
+  </section>
+
+  <p class="note">Волшебной кнопки тут нет. Чем честнее отвечаешь на вопросы, тем лучше нейросеть потом тебя понимает.</p>
+
+  <footer>Собрал Рома · <a href="https://www.instagram.com/roma_restart/">@roma_restart</a><br>Пользуйся и отправляй тем, кому пригодится.</footer>
+</main>
+
+<script>
+(function () {
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return fallbackCopy(text); });
+    }
+    return Promise.resolve(fallbackCopy(text));
+  }
+
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = document.getElementById(btn.getAttribute('data-target'));
+      var card = btn.closest('.card');
+      var msg = card.querySelector('.msg');
+      copyText(pre.textContent).then(function (ok) {
+        if (ok) {
+          btn.textContent = 'Скопировано ✓';
+          btn.classList.add('done');
+          msg.textContent = 'Теперь вставь в чат нейросети.';
+          setTimeout(function () { btn.textContent = 'Скопировать промт'; btn.classList.remove('done'); }, 2500);
+        } else {
+          var details = card.querySelector('details');
+          details.open = true;
+          var r = document.createRange();
+          r.selectNodeContents(pre);
+          var s = window.getSelection();
+          s.removeAllRanges();
+          s.addRange(r);
+          msg.textContent = 'Браузер не дал скопировать сам. Текст выделен ниже: нажми «Копировать».';
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
